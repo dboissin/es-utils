@@ -85,11 +85,3 @@ java -jar target/test-bench-app-0.0.1-SNAPSHOT.jar \
   --app.elasticsearch.index-name=mon_index_b \
   --app.producer.delta-mode=true
 ```
-
-### 6. Run the Rust Diff Index Tool
-Navigate back to the parent directory and run the Rust tool to diff the two indices:
-```bash
-cd ..
-cargo run
-```
-You should see output describing the 150 differences (50 additions, 50 deletions, and 50 modifications).
