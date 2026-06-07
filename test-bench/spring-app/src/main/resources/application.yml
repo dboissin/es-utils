@@ -1,0 +1,40 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: test-bench-app
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password: changeme
+    connection-timeout: 5s
+    socket-timeout: 30s
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: test-bench-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      max-poll-records: 500
+      properties:
+        spring.json.trusted.packages: "*"
+
+app:
+  topic-name: messages-topic
+  producer:
+    enabled: true
+    message-count: 10000
+    delay-ms: 0
+  consumer:
+    enabled: true
+    approach: operations # Options: 'operations' or 'repository'
+  elasticsearch:
+    index-name: mon_index_a # Can be overridden to mon_index_b for diff testing
