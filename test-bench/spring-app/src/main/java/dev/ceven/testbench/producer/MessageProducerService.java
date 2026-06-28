@@ -42,6 +42,7 @@ public class MessageProducerService implements CommandLineRunner {
         logger.info("Starting production of {} messages to topic '{}' (deltaMode={})...",
                 messageCount, topicName, deltaMode);
 
+        long baseTime = System.currentTimeMillis() - (messageCount * 1000L);
         int sentCount = 0;
         for (int i = 0; i < messageCount; i++) {
             String id = String.format("msg-%06d", i);
@@ -50,6 +51,7 @@ public class MessageProducerService implements CommandLineRunner {
             // This guarantees that all updates/versions of a specific message
             // go to the same Kafka partition and are processed in strict order.
             String partitionKey = id;
+            long msgTimestamp = baseTime + (1000L * i);
 
             if (deltaMode) {
                 // 1. Simulate DELETION in Index B (Skip producing some keys that exist in A)
@@ -64,7 +66,7 @@ public class MessageProducerService implements CommandLineRunner {
                             id,
                             "Modified Title " + i,
                             "Modified content for message " + i + " at current time.",
-                            1000L * i);
+                            msgTimestamp);
                     kafkaTemplate.send(topicName, partitionKey, modifiedMsg);
                     sentCount++;
                     continue;
@@ -76,7 +78,7 @@ public class MessageProducerService implements CommandLineRunner {
                     id,
                     "Title " + i,
                     "Random content for message " + i,
-                    1000L * i);
+                    msgTimestamp);
             kafkaTemplate.send(topicName, partitionKey, message);
             sentCount++;
         }
@@ -86,11 +88,12 @@ public class MessageProducerService implements CommandLineRunner {
         if (deltaMode) {
             for (int i = 0; i < 50; i++) {
                 String extraId = String.format("msg-extra-%06d", i);
+                long extraTimestamp = System.currentTimeMillis() + (1000L * i);
                 Message extraMsg = new Message(
                         extraId,
                         "Extra Message Title " + i,
                         "Extra content for message " + i,
-                        2000000L + i);
+                        extraTimestamp);
                 kafkaTemplate.send(topicName, extraId, extraMsg);
                 sentCount++;
             }

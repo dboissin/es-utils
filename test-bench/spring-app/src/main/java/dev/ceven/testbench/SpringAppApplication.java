@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @SpringBootApplication
-@EnableElasticsearchRepositories(basePackages = "com.example.testbench.repository")
+@EnableElasticsearchRepositories(basePackages = "dev.ceven.testbench.infrastructure.adapters.out.elasticsearch")
 public class SpringAppApplication {
 
     public static void main(String[] args) {

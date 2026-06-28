@@ -37,10 +37,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
         match (cursor_a.current_doc(), cursor_b.current_doc()) {
             (Some((id_a, doc_a)), Some((id_b, doc_b))) => {
                 if id_a == id_b {
-                    // Les ID correspondent, on valide le contenu
-                    if doc_a != doc_b {
+                    // Les ID correspondent, on valide le contenu en ignorant les métadonnées d'indexation
+                    let mut doc_a_clean = doc_a.clone();
+                    let mut doc_b_clean = doc_b.clone();
+                    if let Some(obj) = doc_a_clean.as_object_mut() {
+                        obj.remove("messageDatetime");
+                        obj.remove("indexationDatetime");
+                        obj.remove("processingTime");
+                        obj.remove("delayOfProcessing");
+                        obj.remove("ingestionHistory");
+                    }
+                    if let Some(obj) = doc_b_clean.as_object_mut() {
+                        obj.remove("messageDatetime");
+                        obj.remove("indexationDatetime");
+                        obj.remove("processingTime");
+                        obj.remove("delayOfProcessing");
+                        obj.remove("ingestionHistory");
+                    }
+                    if doc_a_clean != doc_b_clean {
                         diff_count += 1;
-                        let patch = diff(doc_a, doc_b);
+                        let patch = diff(&doc_a_clean, &doc_b_clean);
                         println!("\n[MODIFIÉ] ID: {}", id_a);
                         println!("{}", serde_json::to_string_pretty(&patch)?);
                     }
